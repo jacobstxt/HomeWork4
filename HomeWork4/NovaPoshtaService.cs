@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
@@ -13,6 +14,7 @@ using _6.NovaPoshta.Models.City;
 using _6.NovaPoshta.Models.Department;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query.Internal;
+using Microsoft.VisualBasic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -29,10 +31,10 @@ namespace _6.NovaPoshta
             _httpClient = new HttpClient();
             _url = "https://api.novaposhta.ua/v2.0/json/";
             _context = new BombaDbContext();
-            _context.Database.Migrate(); //накатує на БД усі міграції, який там немає
+            _context.Database.Migrate(); //накатує на БД усі міграції, яких там немає
         }
 
-        public void SeedAreas()
+        public async Task  SeedAreas()
         {
             if (!_context.Areas.Any()) // Якщо таблиця пуста
             {
@@ -50,10 +52,12 @@ namespace _6.NovaPoshta
                     Formatting = Formatting.Indented // Для кращого вигляду (не обов'язково)
                 });
                 HttpContent context = new StringContent(json, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = _httpClient.PostAsync(_url, context).Result;
+                //тут забрав result
+                HttpResponseMessage response = await _httpClient.PostAsync(_url, context);
                 if (response.IsSuccessStatusCode)
                 {
-                    string jsonResp = response.Content.ReadAsStringAsync().Result; //Читаємо відповідь від сервера
+
+                    string jsonResp = await response.Content.ReadAsStringAsync(); //Читаємо відповідь від сервера
                     var result = JsonConvert.DeserializeObject<AreaResponse>(jsonResp);
                     if (result != null && result.Data != null && result.Success)
                     {
@@ -65,22 +69,35 @@ namespace _6.NovaPoshta
                                 AreasCenter = item.AreasCenter,
                                 Description = item.Description,
                             };
-                            _context.Areas.Add(entity);
-                            _context.SaveChanges();
+                            //Ці два методи відпрацьовують асинхронно
+                      
+                                await _context.Areas.AddAsync(entity);
+                                await _context.SaveChangesAsync();                        
                         }
                     }
                 }
             }
         }
 
-        public void SeedCities()
+
+
+        public async Task SeedCities()
         {
             if (!_context.Cities.Any()) // Якщо таблиця пуста
             {
-                var listAreas = GetListAreas();
+                var listAreas = await GetListAreas(); 
+                var allCities = new List<CityEntity>();
+
                 foreach (var area in listAreas)
                 {
+                    if (area == null || string.IsNullOrEmpty(area.Ref))
+                    {
+                        // Якщо область не валідна, пропустити її
+                        continue;
+                    }
+
                     Console.WriteLine("Seed area {0}...", area.Description);
+
                     var modelRequest = new CityPostModel
                     {
                         ApiKey = "c44c00290a5023fcc0ff81091471dda1",
@@ -92,18 +109,23 @@ namespace _6.NovaPoshta
 
                     string json = JsonConvert.SerializeObject(modelRequest, new JsonSerializerSettings
                     {
-                        Formatting = Formatting.Indented // Для кращого вигляду (не обов'язково)
+                        Formatting = Formatting.Indented 
                     });
+
                     HttpContent context = new StringContent(json, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = _httpClient.PostAsync(_url, context).Result;
+                    HttpResponseMessage response = await _httpClient.PostAsync(_url, context);
+
                     if (response.IsSuccessStatusCode)
                     {
-                        string jsonResp = response.Content.ReadAsStringAsync().Result; //Читаємо відповідь від сервера
+                        string jsonResp = await response.Content.ReadAsStringAsync(); // Читаємо відповідь від сервера
                         var result = JsonConvert.DeserializeObject<CityResponse>(jsonResp);
+
                         if (result != null && result.Data != null && result.Success)
                         {
                             foreach (var city in result.Data)
                             {
+                                if (city == null) continue; 
+
                                 var cityEntity = new CityEntity
                                 {
                                     Ref = city.Ref,
@@ -112,73 +134,110 @@ namespace _6.NovaPoshta
                                     AreaRef = city.Area,
                                     AreaId = area.Id
                                 };
-                                _context.Cities.Add(cityEntity);
 
+                                allCities.Add(cityEntity); 
                             }
-                            _context.SaveChanges();
                         }
+                        else
+                        {
+                            Console.WriteLine("No cities found for area {0}", area.Description);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("Failed to get cities for area {0}", area.Description);
                     }
                 }
 
+                if (allCities.Any())
+                {
+                    await _context.Cities.AddRangeAsync(allCities); // Додаємо всі міста за один раз
+                    await _context.SaveChangesAsync();
+                }
             }
         }
 
-        public void SeedDepartments()
+        public async Task SeedDepartments()
         {
             if (!_context.Departments.Any()) // Якщо таблиця пуста
             {
-                var listCities = _context.Cities.ToList();
+                var listCities = await _context.Cities.ToListAsync(); 
+                var allDepartments = new ConcurrentBag<DepartmentEntity>(); 
+                var tasks = new List<Task>();
+                var semaphore = new SemaphoreSlim(10); // Ліміт одночасних задач (10)
 
                 foreach (var city in listCities)
                 {
-                    Console.WriteLine("Seed city {0}...", city.Description);
-                    var modelRequest = new DepartmentPostModel
+                    await semaphore.WaitAsync(); // Чекаємо, якщо ліміт досягнуто
+                    tasks.Add(Task.Run(async () =>
                     {
-                        ApiKey = "c44c00290a5023fcc0ff81091471dda1",
-                        MethodProperties = new MethodDepartmentProperties()
+                        try
                         {
-                            CityRef = city.Ref
-                        }
-                    };
+                            Console.WriteLine("Seed city {0}...", city.Description);
 
-                    string json = JsonConvert.SerializeObject(modelRequest, new JsonSerializerSettings
-                    {
-                        Formatting = Formatting.Indented // Для кращого вигляду (не обов'язково)
-                    });
-                    HttpContent context = new StringContent(json, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = _httpClient.PostAsync(_url, context).Result;
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string jsonResp = response.Content.ReadAsStringAsync().Result; //Читаємо відповідь від сервера
-                        var result = JsonConvert.DeserializeObject<DepartmentResponse>(jsonResp);
-                        if (result != null && result.Data != null && result.Success)
-                        {
-                            foreach (var dep in result.Data)
+                            var modelRequest = new DepartmentPostModel
                             {
-                                var departmentEntity = new DepartmentEntity
+                                ApiKey = "c44c00290a5023fcc0ff81091471dda1",
+                                MethodProperties = new MethodDepartmentProperties
                                 {
-                                    Ref = dep.Ref,
-                                    Description = dep.Description,
-                                    Address = dep.ShortAddress,
-                                    Phone = dep.Phone,
-                                    CityRef = dep.CityRef,
-                                    CityId = city.Id
+                                    CityRef = city.Ref
+                                }
+                            };
 
-                                };
-                                _context.Departments.Add(departmentEntity);
+                            string json = JsonConvert.SerializeObject(modelRequest, new JsonSerializerSettings
+                            {
+                                Formatting = Formatting.Indented
+                            });
 
+                            HttpContent context = new StringContent(json, Encoding.UTF8, "application/json");
+                            HttpResponseMessage response = await _httpClient.PostAsync(_url, context);
+
+                            if (response.IsSuccessStatusCode)
+                            {
+                                string jsonResp = await response.Content.ReadAsStringAsync(); // Читаємо відповідь від сервера
+                                var result = JsonConvert.DeserializeObject<DepartmentResponse>(jsonResp);
+
+                                if (result != null && result.Data != null && result.Success)
+                                {
+                                    foreach (var dep in result.Data)
+                                    {
+                                        var departmentEntity = new DepartmentEntity
+                                        {
+                                            Ref = dep.Ref,
+                                            Description = dep.Description,
+                                            Address = dep.ShortAddress,
+                                            Phone = dep.Phone,
+                                            CityRef = dep.CityRef,
+                                            CityId = city.Id
+                                        };
+                                        allDepartments.Add(departmentEntity); // додавання
+                                    }
+                                }
                             }
-                            _context.SaveChanges();
                         }
-                    }
+                        finally
+                        {
+                            semaphore.Release(); // Звільняю семафор
+                        }
+                    }));
                 }
 
+                await Task.WhenAll(tasks); // Чекаємо завершення всіх задач
+
+                if (allDepartments.Any())
+                {
+                    await _context.Departments.AddRangeAsync(allDepartments); // Масове додавання в базу даних
+                    await _context.SaveChangesAsync(); 
+                }
             }
         }
 
-        public List<AreaEntity> GetListAreas()
+
+        public async Task<List<AreaEntity>> GetListAreas()
         {
-            return _context.Areas.ToList();
+            return await _context.Areas.ToListAsync();
         }
+
+
     }
 }

@@ -136,3 +136,4 @@ C:\IT\NetworkProgramming\HomeWorks\HomeWork4\HomeWork4\obj\Debug\net9.0\refint\H
 C:\IT\NetworkProgramming\HomeWorks\HomeWork4\HomeWork4\obj\Debug\net9.0\HomeWork4.pdb
 C:\IT\NetworkProgramming\HomeWorks\HomeWork4\HomeWork4\obj\Debug\net9.0\HomeWork4.genruntimeconfig.cache
 C:\IT\NetworkProgramming\HomeWorks\HomeWork4\HomeWork4\obj\Debug\net9.0\ref\HomeWork4.dll
+C:\IT\NetworkProgramming\HomeWorks\HomeWork4\HomeWork4\obj\Debug\net9.0\HomeWork4.sourcelink.json

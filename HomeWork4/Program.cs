@@ -5,16 +5,16 @@ namespace _6.NovaPoshta
 {
     internal class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             Console.InputEncoding = Encoding.UTF8;
             Console.OutputEncoding = Encoding.UTF8;
             NovaPoshtaService novaPoshtaService = new NovaPoshtaService();
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            novaPoshtaService.SeedAreas();
-            novaPoshtaService.SeedCities();
-            novaPoshtaService.SeedDepartments();
+            await novaPoshtaService.SeedAreas();
+            await novaPoshtaService.SeedCities();
+            await novaPoshtaService.SeedDepartments();
             stopWatch.Stop();
             // Get the elapsed time as a TimeSpan value.
             TimeSpan ts = stopWatch.Elapsed;
@@ -25,7 +25,7 @@ namespace _6.NovaPoshta
                 ts.Milliseconds / 10);
             Console.WriteLine("RunTime " + elapsedTime);
 
-            var list = novaPoshtaService.GetListAreas();
+            var list = await novaPoshtaService.GetListAreas();
 
         }
     }

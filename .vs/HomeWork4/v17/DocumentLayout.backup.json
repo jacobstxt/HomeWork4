@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "C:\\IT\\NetworkProgramming\\HomeWorks\\HomeWork4\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{61F62214-4198-49E2-8A49-533EC5519DD1}|HomeWork4\\HomeWork4.csproj|c:\\it\\networkprogramming\\homeworks\\homework4\\homework4\\constants\\appdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{61F62214-4198-49E2-8A49-533EC5519DD1}|HomeWork4\\HomeWork4.csproj|solutionrelative:homework4\\constants\\appdatabase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{61F62214-4198-49E2-8A49-533EC5519DD1}|HomeWork4\\HomeWork4.csproj|c:\\it\\networkprogramming\\homeworks\\homework4\\homework4\\novaposhtaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{61F62214-4198-49E2-8A49-533EC5519DD1}|HomeWork4\\HomeWork4.csproj|solutionrelative:homework4\\novaposhtaservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{61F62214-4198-49E2-8A49-533EC5519DD1}|HomeWork4\\HomeWork4.csproj|c:\\it\\networkprogramming\\homeworks\\homework4\\homework4\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{61F62214-4198-49E2-8A49-533EC5519DD1}|HomeWork4\\HomeWork4.csproj|solutionrelative:homework4\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,7 +18,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -22,15 +26,28 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "AppDatabase.cs",
-              "DocumentMoniker": "C:\\IT\\NetworkProgramming\\HomeWorks\\HomeWork4\\HomeWork4\\Constants\\AppDatabase.cs",
-              "RelativeDocumentMoniker": "HomeWork4\\Constants\\AppDatabase.cs",
-              "ToolTip": "C:\\IT\\NetworkProgramming\\HomeWorks\\HomeWork4\\HomeWork4\\Constants\\AppDatabase.cs",
-              "RelativeToolTip": "HomeWork4\\Constants\\AppDatabase.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\IT\\NetworkProgramming\\HomeWorks\\HomeWork4\\HomeWork4\\Program.cs",
+              "RelativeDocumentMoniker": "HomeWork4\\Program.cs",
+              "ToolTip": "C:\\IT\\NetworkProgramming\\HomeWorks\\HomeWork4\\HomeWork4\\Program.cs",
+              "RelativeToolTip": "HomeWork4\\Program.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-21T13:53:34.612Z",
+              "WhenOpened": "2025-01-21T16:18:36.542Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "NovaPoshtaService.cs",
+              "DocumentMoniker": "C:\\IT\\NetworkProgramming\\HomeWorks\\HomeWork4\\HomeWork4\\NovaPoshtaService.cs",
+              "RelativeDocumentMoniker": "HomeWork4\\NovaPoshtaService.cs",
+              "ToolTip": "C:\\IT\\NetworkProgramming\\HomeWorks\\HomeWork4\\HomeWork4\\NovaPoshtaService.cs",
+              "RelativeToolTip": "HomeWork4\\NovaPoshtaService.cs",
+              "ViewState": "AgIAAJ4AAAAAAAAAAAAQwKkAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-21T14:59:42.782Z",
               "EditorCaption": ""
             }
           ]
